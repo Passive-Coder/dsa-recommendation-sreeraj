@@ -242,6 +242,10 @@ def _check_hallucinated_references(
     )
 
     for candidate in candidates:
+        # Values such as `9` or `[0, 1]` are evidence from failed test cases,
+        # not identifiers that must appear in the submitted source.
+        if not candidate.isidentifier():
+            continue
         if candidate not in source_code:
             logger.warning(
                 "possible hallucinated reference",
