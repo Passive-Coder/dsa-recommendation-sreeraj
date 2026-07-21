@@ -175,7 +175,10 @@ def _normalize_candidate_data(data: dict[str, Any]) -> dict[str, Any] | None:
 def _extract_identifiers(text: str) -> set[str]:
     """Extract code identifiers (backtick-wrapped or camelCase/snake_case) from text."""
 
-    backtick_matches = re.findall(r"`([^`\s]+)`", text)
+    # Backticks are also commonly used for concrete values from failed cases
+    # (for example, `9` or `[0, 1]`). Only treat a backticked token as a code
+    # reference when it is actually a valid identifier.
+    backtick_matches = re.findall(r"`([A-Za-z_][A-Za-z0-9_]*)`", text)
     identifier_matches = re.findall(
         r"\b[a-z]+(?:_[a-z0-9]+)+|[a-z]+[A-Z][a-zA-Z0-9]*\b", text
     )

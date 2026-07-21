@@ -191,6 +191,21 @@ def test_valid_reference_does_not_log_warning(caplog) -> None:
     assert not any("possible hallucinated reference" in rec.message for rec in caplog.records)
 
 
+def test_backticked_numeric_value_is_not_treated_as_identifier(caplog) -> None:
+    """Concrete failed-case values may be quoted without becoming code references."""
+
+    raw = VALID_LLM_JSON.replace(
+        "Your loop skips the target at the right edge.",
+        "The function returns the wrong pair when the target is `9`.",
+    )
+
+    with caplog.at_level(logging.WARNING):
+        result = validate_llm_output(raw, "sub_1", "def source(nums, target): pass")
+
+    assert result is not None
+    assert not any("possible hallucinated reference" in rec.message for rec in caplog.records)
+
+
 def test_hallucinated_reference_in_hint_text_enforced(caplog) -> None:  
     """Hallucinated identifier specifically in hint_text (feedback clean) is now caught.
 
